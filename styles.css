@@ -2,26 +2,26 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
-}
-
-.container {
+  }
+  
+  .container {
     width: 300px;
     padding: 15px;
-}
-
-h1 {
+  }
+  
+  h1 {
     font-size: 18px;
     color: #333;
     text-align: center;
     margin-bottom: 15px;
-}
-
-.chat-list {
+  }
+  
+  .chat-list {
     max-height: 400px;
     overflow-y: auto;
-}
-
-.chat-item {
+  }
+  
+  .chat-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -31,35 +31,36 @@ h1 {
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
-}
-
-.chat-item:hover {
+  }
+  
+  .chat-item:hover {
     background-color: #e9e9f0;
-}
-
-.chat-link {
+  }
+  
+  .chat-link {
     flex-grow: 1;
     text-decoration: none;
     color: #0073e6;
     font-weight: bold;
-}
-
-.delete-btn {
+  }
+  
+  .delete-btn {
     margin-left: 10px;
     cursor: pointer;
     color: red;
-    font-size: 14px;
-}
-
-::-webkit-scrollbar {
+    font-size: 16px;
+  }
+  
+  ::-webkit-scrollbar {
     width: 5px;
-}
-
-::-webkit-scrollbar-thumb {
+  }
+  
+  ::-webkit-scrollbar-thumb {
     background-color: #ccc;
     border-radius: 10px;
-}
-
-::-webkit-scrollbar-track {
+  }
+  
+  ::-webkit-scrollbar-track {
     background-color: #f4f4f9;
-}
+  }
+  
