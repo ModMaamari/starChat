@@ -30,7 +30,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
               target: { tabId: tab.id },
               func: () => {
                 const notification = document.createElement('div');
-                notification.innerText = 'Chat starred successfully!';
+                notification.innerText = '✨ Chat starred successfully!';
                 notification.style.position = 'fixed';
                 notification.style.top = '50%';
                 notification.style.left = '50%';
