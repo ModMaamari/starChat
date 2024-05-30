@@ -1,22 +1,28 @@
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .container {
-    width: 300px;
+    width: 320px;
     padding: 15px;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-    font-size: 18px;
+    font-size: 20px;
     text-align: center;
     margin-bottom: 15px;
+    color: var(--text-color);
 }
 
 .chat-list {
     max-height: 400px;
     overflow-y: auto;
+    padding: 0;
+    list-style: none;
 }
 
 .chat-item {
@@ -25,19 +31,22 @@ h1 {
     align-items: center;
     padding: 10px;
     margin: 5px 0;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+    background-color: var(--item-bg-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .chat-item:hover {
     background-color: var(--hover-bg-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .chat-link {
     flex-grow: 1;
     text-decoration: none;
     color: var(--link-color);
-    font-weight: bold;
+    font-weight: 500;
 }
 
 .rename-btn,
@@ -62,14 +71,15 @@ h1 {
 
 .delete-all-btn {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-top: 15px;
     background-color: red;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
 .delete-all-btn:hover {
@@ -84,9 +94,6 @@ h1 {
     border: none;
     cursor: pointer;
     font-size: 20px;
-}
-
-.theme-toggle-btn i {
     color: var(--icon-color);
 }
 
@@ -96,6 +103,7 @@ h1 {
     --link-color: #0073e6;
     --hover-bg-color: #e9e9f0;
     --icon-color: #333;
+    --item-bg-color: #fff;
 }
 
 .dark-theme {
@@ -104,6 +112,7 @@ h1 {
     --link-color: #4a90e2;
     --hover-bg-color: #333;
     --icon-color: #f4f4f9;
+    --item-bg-color: #2a2a2a;
 }
 
 body.light-theme {
