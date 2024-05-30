@@ -1,6 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
   const chatList = document.getElementById('chat-list');
   const deleteAllBtn = document.getElementById('delete-all-btn');
+  const themeToggleBtn = document.getElementById('theme-toggle-btn');
+
+  // Load theme preference
+  chrome.storage.sync.get('theme', (data) => {
+    const theme = data.theme || 'light';
+    document.body.classList.add(`${theme}-theme`);
+    updateThemeIcon(theme);
+  });
 
   // Function to load and display chats
   function loadChats() {
@@ -102,6 +110,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function toggleTheme() {
+    const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+    document.body.classList.remove(`${currentTheme}-theme`);
+    document.body.classList.add(`${newTheme}-theme`);
+    chrome.storage.sync.set({ theme: newTheme });
+
+    updateThemeIcon(newTheme);
+  }
+
+  function updateThemeIcon(theme) {
+    const icon = theme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+    themeToggleBtn.innerHTML = icon;
+  }
+
+  themeToggleBtn.addEventListener('click', toggleTheme);
   deleteAllBtn.addEventListener('click', deleteAllChats);
 
   loadChats(); // Initial load

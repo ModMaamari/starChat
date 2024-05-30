@@ -1,7 +1,6 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
 }
 
 .container {
@@ -11,7 +10,6 @@ body {
 
 h1 {
     font-size: 18px;
-    color: #333;
     text-align: center;
     margin-bottom: 15px;
 }
@@ -27,20 +25,18 @@ h1 {
     align-items: center;
     padding: 10px;
     margin: 5px 0;
-    background-color: #fff;
     border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
 }
 
 .chat-item:hover {
-    background-color: #e9e9f0;
+    background-color: var(--hover-bg-color);
 }
 
 .chat-link {
     flex-grow: 1;
     text-decoration: none;
-    color: #0073e6;
+    color: var(--link-color);
     font-weight: bold;
 }
 
@@ -80,6 +76,46 @@ h1 {
     background-color: darkred;
 }
 
+.theme-toggle-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.theme-toggle-btn i {
+    color: var(--icon-color);
+}
+
+.light-theme {
+    --bg-color: #f4f4f9;
+    --text-color: #333;
+    --link-color: #0073e6;
+    --hover-bg-color: #e9e9f0;
+    --icon-color: #333;
+}
+
+.dark-theme {
+    --bg-color: #1e1e1e;
+    --text-color: #f4f4f9;
+    --link-color: #4a90e2;
+    --hover-bg-color: #333;
+    --icon-color: #f4f4f9;
+}
+
+body.light-theme {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+body.dark-theme {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
 ::-webkit-scrollbar {
     width: 5px;
 }
@@ -90,5 +126,5 @@ h1 {
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #f4f4f9;
+    background-color: var(--bg-color);
 }
