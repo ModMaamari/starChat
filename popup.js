@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
       starredChats.forEach((chat, index) => {
         const chatItem = document.createElement('div');
         chatItem.classList.add('chat-item');
+        chatItem.setAttribute('data-index', index);
 
         const chatLink = document.createElement('a');
         chatLink.href = chat.url;
@@ -56,6 +57,19 @@ document.addEventListener('DOMContentLoaded', () => {
         chatItem.appendChild(deleteBtn);
         chatItem.appendChild(pinBtn);
         chatList.appendChild(chatItem);
+      });
+
+      // Make the chat list sortable
+      new Sortable(chatList, {
+        animation: 150,
+        onEnd: function (evt) {
+          const oldIndex = evt.oldIndex;
+          const newIndex = evt.newIndex;
+
+          if (oldIndex !== newIndex) {
+            moveChat(oldIndex, newIndex);
+          }
+        },
       });
     });
   }
@@ -124,6 +138,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateThemeIcon(theme) {
     const icon = theme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
     themeToggleBtn.innerHTML = icon;
+  }
+
+  function moveChat(oldIndex, newIndex) {
+    chrome.storage.sync.get('starredChats', (data) => {
+      const starredChats = data.starredChats || [];
+      const [movedChat] = starredChats.splice(oldIndex, 1);
+      starredChats.splice(newIndex, 0, movedChat);
+      chrome.storage.sync.set({ starredChats }, loadChats);
+    });
   }
 
   themeToggleBtn.addEventListener('click', toggleTheme);
