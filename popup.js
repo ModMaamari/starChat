@@ -17,7 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
       deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Font Awesome icon
       deleteBtn.classList.add('delete-btn');
       deleteBtn.addEventListener('click', () => {
-        removeChat(index);
+        if (confirm('Are you sure you want to delete this starred chat?')) {
+          removeChat(index);
+        }
       });
 
       chatItem.appendChild(chatLink);
@@ -47,7 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
           deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Font Awesome icon
           deleteBtn.classList.add('delete-btn');
           deleteBtn.addEventListener('click', () => {
-            removeChat(newIndex);
+            if (confirm('Are you sure you want to delete this starred chat?')) {
+              removeChat(newIndex);
+            }
           });
 
           chatItem.appendChild(chatLink);
