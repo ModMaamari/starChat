@@ -1,0 +1,19 @@
+name: Check manifest.json
+
+on: [push, pull_request]
+
+jobs:
+  check-manifest:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Check if manifest.json exists
+      run: |
+        if [ ! -f "manifest.json" ]; then
+          echo "manifest.json not found!"
+          exit 1
+        fi
+        echo "manifest.json exists."
