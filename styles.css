@@ -45,7 +45,8 @@ h1 {
 }
 
 .rename-btn,
-.delete-btn {
+.delete-btn,
+.pin-btn {
     margin-left: 10px;
     cursor: pointer;
     font-size: 16px;
@@ -57,6 +58,10 @@ h1 {
 
 .delete-btn {
     color: red;
+}
+
+.pin-btn {
+    color: gray;
 }
 
 ::-webkit-scrollbar {
