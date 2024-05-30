@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const chatList = document.getElementById('chat-list');
+  const deleteAllBtn = document.getElementById('delete-all-btn');
 
   // Function to load and display chats
   function loadChats() {
@@ -94,6 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  function deleteAllChats() {
+    if (confirm('Are you sure you want to delete all starred chats? This action cannot be undone.')) {
+      chrome.storage.sync.set({ starredChats: [], pinnedChats: [] }, loadChats);
+    }
+  }
+
+  deleteAllBtn.addEventListener('click', deleteAllChats);
 
   loadChats(); // Initial load
 });

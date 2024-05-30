@@ -64,6 +64,22 @@ h1 {
     color: gray;
 }
 
+.delete-all-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.delete-all-btn:hover {
+    background-color: darkred;
+}
+
 ::-webkit-scrollbar {
     width: 5px;
 }
