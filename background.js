@@ -9,7 +9,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  const allowedUrls = ['https://chatgpt.com/', 'https://chat.mistral.ai/'];
+  const allowedUrls = ['https://chatgpt.com/', 'https://chat.mistral.ai/', 'https://you.com/'];
 
   if (info.menuItemId === "starChat") {
     // Check if the URL is from any allowed URL
@@ -61,7 +61,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         target: { tabId: tab.id },
         func: () => {
           const notification = document.createElement('div');
-          notification.innerText = 'You can only star chats from https://chatgpt.com/ or https://chat.mistral.ai/';
+          notification.innerText = 'You can only star chats from chatgpt, mistral.ai, you.com';
           notification.style.position = 'fixed';
           notification.style.top = '50%';
           notification.style.left = '50%';
