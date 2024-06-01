@@ -14,7 +14,7 @@ Starred Chats is a Chrome extension that allows users to star their favorite Cha
 
 1. **Clone or Download the Repository**:
    ```bash
-   git clone https://github.com/yourusername/starred-chats-extension.git
+   git clone https://github.com/ModMaamari/starChat.git
    ```
    Or download the ZIP file and extract it to a directory.
 
