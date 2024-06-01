@@ -5,7 +5,7 @@ chrome.runtime.onInstalled.addListener(() => {
     contexts: ["page"]
   });
 
-  chrome.storage.sync.set({ starredChats: [], pinnedChats: [] });
+  chrome.storage.sync.set({ starredChats: [], pinnedChats: [], folders: [] });
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -16,8 +16,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     const isAllowedUrl = allowedUrls.some(allowedUrl => tab.url.startsWith(allowedUrl));
 
     if (isAllowedUrl) {
-      chrome.storage.sync.get('starredChats', (data) => {
+      chrome.storage.sync.get(['starredChats', 'folders'], (data) => {
         const starredChats = data.starredChats || [];
+        const folders = data.folders || [];
         const chatUrl = tab.url;
         const chatTitle = tab.title;
 
@@ -51,35 +52,51 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             }
           });
         } else {
-          starredChats.push({ title: chatTitle, url: chatUrl });
-          chrome.storage.sync.set({ starredChats }, () => {
-            // Show a fading notification for success
-            chrome.scripting.executeScript({
-              target: { tabId: tab.id },
-              func: () => {
-                const notification = document.createElement('div');
-                notification.innerText = '✨ Chat starred successfully!';
-                notification.style.position = 'fixed';
-                notification.style.top = '50%';
-                notification.style.left = '50%';
-                notification.style.transform = 'translate(-50%, -50%)';
-                notification.style.backgroundColor = '#4CAF50';
-                notification.style.color = 'white';
-                notification.style.padding = '10px';
-                notification.style.borderRadius = '5px';
-                notification.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-                notification.style.zIndex = '10000';
-                notification.style.opacity = '1';
-                notification.style.transition = 'opacity 1s ease-out';
-                document.body.appendChild(notification);
-                setTimeout(() => {
-                  notification.style.opacity = '0';
-                  setTimeout(() => {
-                    document.body.removeChild(notification);
-                  }, 1000);
-                }, 2000);
+          // Prompt for folder selection
+          chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: (folders) => {
+              const folderName = prompt('Select a folder: ' + folders.map(folder => folder.name).join(', '));
+              if (folderName && folders.some(folder => folder.name === folderName)) {
+                return folderName;
               }
-            });
+              return null;
+            },
+            args: [folders]
+          }, (results) => {
+            const folderName = results[0].result;
+            if (folderName) {
+              starredChats.push({ title: chatTitle, url: chatUrl, folder: folderName });
+              chrome.storage.sync.set({ starredChats }, () => {
+                // Show a fading notification for success
+                chrome.scripting.executeScript({
+                  target: { tabId: tab.id },
+                  func: () => {
+                    const notification = document.createElement('div');
+                    notification.innerText = 'Chat starred successfully!';
+                    notification.style.position = 'fixed';
+                    notification.style.top = '50%';
+                    notification.style.left = '50%';
+                    notification.style.transform = 'translate(-50%, -50%)';
+                    notification.style.backgroundColor = '#4CAF50';
+                    notification.style.color = 'white';
+                    notification.style.padding = '10px';
+                    notification.style.borderRadius = '5px';
+                    notification.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+                    notification.style.zIndex = '10000';
+                    notification.style.opacity = '1';
+                    notification.style.transition = 'opacity 1s ease-out';
+                    document.body.appendChild(notification);
+                    setTimeout(() => {
+                      notification.style.opacity = '0';
+                      setTimeout(() => {
+                        document.body.removeChild(notification);
+                      }, 1000);
+                    }, 2000);
+                  }
+                });
+              });
+            }
           });
         }
       });

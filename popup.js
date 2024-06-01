@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const chatList = document.getElementById('chat-list');
+  const folderList = document.getElementById('folder-list');
+  const addFolderBtn = document.getElementById('add-folder-btn');
   const deleteAllBtn = document.getElementById('delete-all-btn');
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
 
@@ -10,18 +12,62 @@ document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon(theme);
   });
 
+  // Function to load and display folders
+  function loadFolders() {
+    chrome.storage.sync.get('folders', (data) => {
+      const folders = data.folders || [];
+
+      folderList.innerHTML = '';
+
+      folders.forEach((folder, index) => {
+        const folderItem = document.createElement('div');
+        folderItem.classList.add('folder-item');
+        folderItem.setAttribute('data-index', index);
+
+        const folderLink = document.createElement('span');
+        folderLink.innerText = folder.name;
+        folderLink.classList.add('folder-link');
+        folderLink.addEventListener('click', () => {
+          loadChats(folder.name);
+        });
+
+        const editBtn = document.createElement('span');
+        editBtn.innerHTML = '<i class="fas fa-edit"></i>'; // Font Awesome icon
+        editBtn.classList.add('rename-btn');
+        editBtn.addEventListener('click', () => {
+          renameFolder(index);
+        });
+
+        const deleteBtn = document.createElement('span');
+        deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Font Awesome icon
+        deleteBtn.classList.add('delete-btn');
+        deleteBtn.addEventListener('click', () => {
+          if (confirm('Are you sure you want to delete this folder?')) {
+            removeFolder(index);
+          }
+        });
+
+        folderItem.appendChild(folderLink);
+        folderItem.appendChild(editBtn);
+        folderItem.appendChild(deleteBtn);
+        folderList.appendChild(folderItem);
+      });
+    });
+  }
+
   // Function to load and display chats
-  function loadChats() {
+  function loadChats(folderName) {
     chrome.storage.sync.get(['starredChats', 'pinnedChats'], (data) => {
       const starredChats = data.starredChats || [];
       const pinnedChats = data.pinnedChats || [];
+      const folderChats = starredChats.filter(chat => chat.folder === folderName);
 
       // Clear the list to avoid duplicates
       chatList.innerHTML = '';
 
       // Separate pinned and unpinned chats
-      const pinned = starredChats.filter(chat => pinnedChats.includes(chat.url));
-      const unpinned = starredChats.filter(chat => !pinnedChats.includes(chat.url));
+      const pinned = folderChats.filter(chat => pinnedChats.includes(chat.url));
+      const unpinned = folderChats.filter(chat => !pinnedChats.includes(chat.url));
 
       // Combine pinned and unpinned, with pinned first
       const combinedChats = [...pinned, ...unpinned];
@@ -75,9 +121,51 @@ document.addEventListener('DOMContentLoaded', () => {
           const newIndex = evt.newIndex;
 
           if (oldIndex !== newIndex) {
-            moveChat(oldIndex, newIndex);
+            moveChat(oldIndex, newIndex, folderName);
           }
         },
+      });
+    });
+  }
+
+  function addFolder() {
+    const folderName = prompt('Enter the name for the new folder:');
+    if (folderName) {
+      chrome.storage.sync.get('folders', (data) => {
+        const folders = data.folders || [];
+        folders.push({ name: folderName });
+        chrome.storage.sync.set({ folders }, loadFolders);
+      });
+    }
+  }
+
+  function renameFolder(index) {
+    const newName = prompt('Enter the new name for the folder:');
+    if (newName) {
+      chrome.storage.sync.get('folders', (data) => {
+        const folders = data.folders || [];
+        folders[index].name = newName;
+        chrome.storage.sync.set({ folders }, loadFolders);
+      });
+    }
+  }
+
+  function removeFolder(index) {
+    chrome.storage.sync.get('folders', (data) => {
+      const folders = data.folders || [];
+      const folderName = folders[index].name;
+
+      folders.splice(index, 1);
+      chrome.storage.sync.set({ folders }, () => {
+        // Remove chats associated with this folder
+        chrome.storage.sync.get('starredChats', (data) => {
+          const starredChats = data.starredChats || [];
+          const newStarredChats = starredChats.filter(chat => chat.folder !== folderName);
+          chrome.storage.sync.set({ starredChats: newStarredChats }, () => {
+            loadFolders();
+            loadChats(null); // Clear chat list
+          });
+        });
       });
     });
   }
@@ -87,9 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (newName) {
       chrome.storage.sync.get('starredChats', (data) => {
         const starredChats = data.starredChats || [];
-        starredChats[index].title = newName;
+        const chat = starredChats.find(chat => chat.url === url);
+        chat.title = newName;
         chrome.storage.sync.set({ starredChats }, () => {
-          loadChats();
+          loadChats(chat.folder);
           showNotification('Chat renamed successfully!', 'green');
         });
       });
@@ -100,12 +189,13 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.get(['starredChats', 'pinnedChats'], (data) => {
       const starredChats = data.starredChats || [];
       const pinnedChats = data.pinnedChats || [];
+      const chat = starredChats.find(chat => chat.url === url);
 
       starredChats.splice(index, 1);
       const newPinnedChats = pinnedChats.filter(pinnedUrl => pinnedUrl !== url);
 
       chrome.storage.sync.set({ starredChats, pinnedChats: newPinnedChats }, () => {
-        loadChats();
+        loadChats(chat.folder);
         showNotification('Chat deleted successfully!', 'red');
       });
     });
@@ -132,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function deleteAllChats() {
     if (confirm('Are you sure you want to delete all starred chats? This action cannot be undone.')) {
       chrome.storage.sync.set({ starredChats: [], pinnedChats: [] }, () => {
-        loadChats();
+        loadChats(null); // Clear chat list
         showNotification('All chats deleted successfully!', 'red');
       });
     }
@@ -154,12 +244,16 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggleBtn.innerHTML = icon;
   }
 
-  function moveChat(oldIndex, newIndex) {
+  function moveChat(oldIndex, newIndex, folderName) {
     chrome.storage.sync.get('starredChats', (data) => {
       const starredChats = data.starredChats || [];
-      const [movedChat] = starredChats.splice(oldIndex, 1);
-      starredChats.splice(newIndex, 0, movedChat);
-      chrome.storage.sync.set({ starredChats }, loadChats);
+      const folderChats = starredChats.filter(chat => chat.folder === folderName);
+      const [movedChat] = folderChats.splice(oldIndex, 1);
+      folderChats.splice(newIndex, 0, movedChat);
+
+      // Update the original starredChats array
+      const newStarredChats = starredChats.filter(chat => chat.folder !== folderName).concat(folderChats);
+      chrome.storage.sync.set({ starredChats: newStarredChats }, loadChats);
     });
   }
 
@@ -187,8 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000);
   }
 
+  addFolderBtn.addEventListener('click', addFolder);
   themeToggleBtn.addEventListener('click', toggleTheme);
   deleteAllBtn.addEventListener('click', deleteAllChats);
 
-  loadChats(); // Initial load
+  loadFolders(); // Initial load
 });
