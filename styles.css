@@ -18,6 +18,55 @@ h1 {
     color: var(--text-color);
 }
 
+.folder-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.folder-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin: 5px 0;
+    background-color: var(--item-bg-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.folder-item:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.folder-link {
+    flex-grow: 1;
+    text-decoration: none;
+    color: var(--link-color);
+    font-weight: 500;
+}
+
+.add-folder-btn,
+.delete-all-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background-color: #0073e6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.add-folder-btn:hover,
+.delete-all-btn:hover {
+    background-color: #005bb5;
+}
+
 .chat-list {
     max-height: 400px;
     overflow-y: auto;
