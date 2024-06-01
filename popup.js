@@ -16,9 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const starredChats = data.starredChats || [];
       const pinnedChats = data.pinnedChats || [];
 
-      chatList.innerHTML = ''; // Clear the list to avoid duplicates
+      // Clear the list to avoid duplicates
+      chatList.innerHTML = '';
 
-      starredChats.forEach((chat, index) => {
+      // Separate pinned and unpinned chats
+      const pinned = starredChats.filter(chat => pinnedChats.includes(chat.url));
+      const unpinned = starredChats.filter(chat => !pinnedChats.includes(chat.url));
+
+      // Combine pinned and unpinned, with pinned first
+      const combinedChats = [...pinned, ...unpinned];
+
+      combinedChats.forEach((chat, index) => {
         const chatItem = document.createElement('div');
         chatItem.classList.add('chat-item');
         chatItem.setAttribute('data-index', index);
@@ -49,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pinBtn.innerHTML = pinnedChats.includes(chat.url) ? '<i class="fas fa-thumbtack" style="color: gold;"></i>' : '<i class="fas fa-thumbtack"></i>'; // Font Awesome icon
         pinBtn.classList.add('pin-btn');
         pinBtn.addEventListener('click', () => {
-          pinChat(index);
+          pinChat(chat.url);
         });
 
         chatItem.appendChild(chatLink);
@@ -98,18 +106,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function pinChat(index) {
-    chrome.storage.sync.get(['starredChats', 'pinnedChats'], (data) => {
-      const starredChats = data.starredChats || [];
+  function pinChat(url) {
+    chrome.storage.sync.get(['pinnedChats'], (data) => {
       const pinnedChats = data.pinnedChats || [];
-      const chatUrl = starredChats[index].url;
 
-      if (pinnedChats.includes(chatUrl)) {
-        const newPinnedChats = pinnedChats.filter(url => url !== chatUrl);
+      if (pinnedChats.includes(url)) {
+        const newPinnedChats = pinnedChats.filter(pinnedUrl => pinnedUrl !== url);
         chrome.storage.sync.set({ pinnedChats: newPinnedChats }, loadChats);
       } else {
         if (pinnedChats.length < 5) {
-          pinnedChats.push(chatUrl);
+          pinnedChats.push(url);
           chrome.storage.sync.set({ pinnedChats }, loadChats);
         } else {
           alert('You can only pin up to 5 chats.');
