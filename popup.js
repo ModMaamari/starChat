@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renameBtn.innerHTML = '<i class="fas fa-edit"></i>'; // Font Awesome icon
         renameBtn.classList.add('rename-btn');
         renameBtn.addEventListener('click', () => {
-          renameChat(index);
+          renameChat(index, chat.url);
         });
 
         const deleteBtn = document.createElement('span');
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteBtn.classList.add('delete-btn');
         deleteBtn.addEventListener('click', () => {
           if (confirm('Are you sure you want to delete this starred chat?')) {
-            removeChat(index);
+            removeChat(index, chat.url);
           }
         });
 
@@ -82,27 +82,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function renameChat(index) {
+  function renameChat(index, url) {
     const newName = prompt('Enter the new name for the chat:');
     if (newName) {
       chrome.storage.sync.get('starredChats', (data) => {
         const starredChats = data.starredChats || [];
         starredChats[index].title = newName;
-        chrome.storage.sync.set({ starredChats }, loadChats);
+        chrome.storage.sync.set({ starredChats }, () => {
+          loadChats();
+          showNotification('Chat renamed successfully!', 'green');
+        });
       });
     }
   }
 
-  function removeChat(index) {
+  function removeChat(index, url) {
     chrome.storage.sync.get(['starredChats', 'pinnedChats'], (data) => {
       const starredChats = data.starredChats || [];
       const pinnedChats = data.pinnedChats || [];
-      const chatUrl = starredChats[index].url;
 
       starredChats.splice(index, 1);
-      const newPinnedChats = pinnedChats.filter(url => url !== chatUrl);
+      const newPinnedChats = pinnedChats.filter(pinnedUrl => pinnedUrl !== url);
 
-      chrome.storage.sync.set({ starredChats, pinnedChats: newPinnedChats }, loadChats);
+      chrome.storage.sync.set({ starredChats, pinnedChats: newPinnedChats }, () => {
+        loadChats();
+        showNotification('Chat deleted successfully!', 'red');
+      });
     });
   }
 
@@ -126,7 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function deleteAllChats() {
     if (confirm('Are you sure you want to delete all starred chats? This action cannot be undone.')) {
-      chrome.storage.sync.set({ starredChats: [], pinnedChats: [] }, loadChats);
+      chrome.storage.sync.set({ starredChats: [], pinnedChats: [] }, () => {
+        loadChats();
+        showNotification('All chats deleted successfully!', 'red');
+      });
     }
   }
 
@@ -153,6 +161,30 @@ document.addEventListener('DOMContentLoaded', () => {
       starredChats.splice(newIndex, 0, movedChat);
       chrome.storage.sync.set({ starredChats }, loadChats);
     });
+  }
+
+  function showNotification(message, color) {
+    const notification = document.createElement('div');
+    notification.innerText = message;
+    notification.style.position = 'fixed';
+    notification.style.top = '50%';
+    notification.style.left = '50%';
+    notification.style.transform = 'translate(-50%, -50%)';
+    notification.style.backgroundColor = color;
+    notification.style.color = 'white';
+    notification.style.padding = '10px';
+    notification.style.borderRadius = '5px';
+    notification.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+    notification.style.zIndex = '10000';
+    notification.style.opacity = '1';
+    notification.style.transition = 'opacity 1s ease-out';
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 1000);
+    }, 2000);
   }
 
   themeToggleBtn.addEventListener('click', toggleTheme);
